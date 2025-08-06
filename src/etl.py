@@ -14,6 +14,9 @@ def read_data(spark: SparkSession, input_path: str, schema: StructType) -> DataF
     """
     try:
         logging.info(f"Reading data from {input_path}")
+        # Handle file:/// prefix for local paths
+        if input_path.startswith("file:///"):
+            input_path = input_path[8:]
         df = spark.read.csv(input_path, header=True, schema=schema)
         return df
     except Exception as e:
@@ -51,20 +54,17 @@ def transform_data(df: DataFrame) -> DataFrame:
         logging.error(f"Error transforming data: {e}")
         raise
 
-def write_data(df: DataFrame, output_path: str, file_format: str = "parquet"):
+def write_data(df: DataFrame, output_path: str):
     """
-    Writes a DataFrame to a specified path and format.
+    Writes a DataFrame to a single CSV file.
 
     :param df: DataFrame to write.
     :param output_path: Path to write the data.
-    :param file_format: "parquet" or "delta".
     """
     try:
-        logging.info(f"Writing data to {output_path} in {file_format} format...")
-        if file_format not in ["parquet", "delta"]:
-            raise ValueError("Invalid file format. Choose 'parquet' or 'delta'.")
-
-        df.write.format(file_format).mode("overwrite").save(output_path)
+        logging.info(f"Writing data to {output_path} as a single CSV file...")
+        # Coalesce to a single partition to write to a single file
+        df.coalesce(1).write.format("csv").mode("overwrite").option("header", "true").save(output_path)
         logging.info("Data written successfully.")
     except Exception as e:
         logging.error(f"Error writing data to {output_path}: {e}")
