@@ -32,20 +32,17 @@ def main():
         ])
 
         # Define I/O paths
-        input_path = "data/raw"
-        output_path_parquet = "data/processed/parquet"
-        output_path_delta = "data/processed/delta"
+        import os
+        input_path = "file:///" + os.path.abspath("data/raw")
+        output_path_csv = "file:///" + os.path.abspath("data/processed/output.csv")
 
         # Run ETL pipeline
         raw_df = read_data(spark, input_path, schema)
         if raw_df:
             transformed_df = transform_data(raw_df)
 
-            # Write to Parquet
-            write_data(transformed_df, output_path_parquet, "parquet")
-
-            # Write to Delta
-            write_data(transformed_df, output_path_delta, "delta")
+            # Write to a single CSV file
+            write_data(transformed_df, output_path_csv)
 
             logging.info("ETL pipeline finished successfully.")
         else:

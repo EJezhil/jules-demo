@@ -62,15 +62,15 @@ class TestEtl(unittest.TestCase):
         data = [(1, "a"), (2, "b")]
         df = self.spark.createDataFrame(data, schema)
 
-        # Write the DataFrame to a Parquet file in a dedicated subdirectory
+        # Write the DataFrame to a CSV file in a dedicated subdirectory
         output_path = os.path.join(self.temp_dir, "read_write_test")
 
-        write_data(df, output_path, "parquet")
+        write_data(df, output_path)
 
         # Read the data back
-        # Since we are writing parquet, the input path for reading should be the same.
-        # Spark will read the parquet files from the directory.
-        read_df = self.spark.read.parquet(output_path)
+        # Since we are writing a CSV, we need to read it back as a CSV.
+        # Spark writes the CSV to a directory with a part file, so we need to read the directory.
+        read_df = self.spark.read.csv(output_path, header=True, inferSchema=True)
 
         # Assertions
         self.assertEqual(df.count(), read_df.count())
