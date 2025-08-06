@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+
+# PySpark
+.idea/
+*.log
+*.sbt
+target/
+project/
+build/
+
+# Data
+data/processed/
+data/raw/
+*.csv
+*.parquet
+*.delta
+
+# Other
+.DS_Store
